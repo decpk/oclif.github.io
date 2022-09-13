@@ -79,23 +79,43 @@
 <p>Here are the options flags can have:</p>
 <pre><code class="hljs css language-js"><span class="hljs-keyword">static</span> flags = {
   <span class="hljs-attr">name</span>: Flags.string({
-    <span class="hljs-attr">char</span>: <span class="hljs-string">'n'</span>,                    <span class="hljs-comment">// shorter flag version</span>
-    <span class="hljs-attr">description</span>: <span class="hljs-string">'name to print'</span>, <span class="hljs-comment">// help description for flag</span>
-    <span class="hljs-attr">hidden</span>: <span class="hljs-literal">false</span>,                <span class="hljs-comment">// hide from help</span>
-    <span class="hljs-attr">multiple</span>: <span class="hljs-literal">false</span>,              <span class="hljs-comment">// allow setting this flag multiple times</span>
-    <span class="hljs-attr">env</span>: <span class="hljs-string">'MY_NAME'</span>,               <span class="hljs-comment">// default to value of environment variable</span>
-    <span class="hljs-attr">options</span>: [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>],          <span class="hljs-comment">// only allow the value to be from a discrete set</span>
-    <span class="hljs-attr">parse</span>: <span class="hljs-function"><span class="hljs-params">input</span> =&gt;</span> <span class="hljs-string">'output'</span>,     <span class="hljs-comment">// instead of the user input, return a different value</span>
-    <span class="hljs-attr">default</span>: <span class="hljs-string">'world'</span>,             <span class="hljs-comment">// default value if flag not passed (can be a function that returns a string or undefined)</span>
-    <span class="hljs-attr">required</span>: <span class="hljs-literal">false</span>,              <span class="hljs-comment">// make flag required (this is not common and you should probably use an argument instead)</span>
-    <span class="hljs-attr">dependsOn</span>: [<span class="hljs-string">'extra-flag'</span>],    <span class="hljs-comment">// this flag requires another flag</span>
-    <span class="hljs-attr">exclusive</span>: [<span class="hljs-string">'extra-flag'</span>],    <span class="hljs-comment">// this flag cannot be specified alongside this other flag</span>
+    <span class="hljs-attr">char</span>: <span class="hljs-string">'n'</span>,                                   <span class="hljs-comment">// shorter flag version</span>
+    <span class="hljs-attr">summary</span>: <span class="hljs-string">'brief summary'</span>,                    <span class="hljs-comment">// help summary for flag</span>
+    <span class="hljs-attr">helpGroup</span>: <span class="hljs-string">'THE BEST FLAGS'</span>,                 <span class="hljs-comment">// Put flag into THE BEST FLAGS group in help</span>
+    <span class="hljs-attr">description</span>: <span class="hljs-string">'in-depth overview'</span>,            <span class="hljs-comment">// help description for flag</span>
+    <span class="hljs-attr">hidden</span>: <span class="hljs-literal">false</span>,                               <span class="hljs-comment">// hide from help</span>
+    <span class="hljs-attr">multiple</span>: <span class="hljs-literal">false</span>,                             <span class="hljs-comment">// allow setting this flag multiple times</span>
+    <span class="hljs-attr">env</span>: <span class="hljs-string">'MY_NAME'</span>,                              <span class="hljs-comment">// default to value of environment variable</span>
+    <span class="hljs-attr">options</span>: [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>],                         <span class="hljs-comment">// only allow the value to be from a discrete set</span>
+    <span class="hljs-attr">parse</span>: <span class="hljs-keyword">async</span> input =&gt; <span class="hljs-string">'output'</span>,              <span class="hljs-comment">// instead of the user input, return a different value</span>
+    <span class="hljs-attr">default</span>: <span class="hljs-string">'world'</span>,                            <span class="hljs-comment">// default value if flag not passed (can be an async function that returns a string or undefined)</span>
+    <span class="hljs-attr">required</span>: <span class="hljs-literal">false</span>,                             <span class="hljs-comment">// make flag required</span>
+    <span class="hljs-attr">dependsOn</span>: [<span class="hljs-string">'extra-flag'</span>],                   <span class="hljs-comment">// this flag requires another flag</span>
+    <span class="hljs-attr">exclusive</span>: [<span class="hljs-string">'extra-flag'</span>],                   <span class="hljs-comment">// this flag cannot be specified alongside this other flag</span>
+    <span class="hljs-attr">exactlyOne</span>: [<span class="hljs-string">'extra-flag'</span>, <span class="hljs-string">'another-flag'</span>],  <span class="hljs-comment">// exactly one of these flags must be provided</span>
+    <span class="hljs-attr">relationships</span>: [                             <span class="hljs-comment">// define complex relationships between flags</span>
+      <span class="hljs-comment">// Make this flag dependent on all of these flags</span>
+      {<span class="hljs-attr">type</span>: <span class="hljs-string">'all'</span>, <span class="hljs-attr">flags</span>: [<span class="hljs-string">'flag-one'</span>, <span class="hljs-string">'flag-two'</span>]}
+      <span class="hljs-comment">// Make this flag dependent on at least one of these flags</span>
+      {<span class="hljs-attr">type</span>: <span class="hljs-string">'some'</span>, <span class="hljs-attr">flags</span>: [<span class="hljs-string">'flag-three'</span>, <span class="hljs-string">'flag-four'</span>]}
+      <span class="hljs-comment">// Make this flag exclusive of all these flags</span>
+      {<span class="hljs-attr">type</span>: <span class="hljs-string">'none'</span>, <span class="hljs-attr">flags</span>: [<span class="hljs-string">'flag-five'</span>, <span class="hljs-string">'flag-six'</span>]}
+
+      <span class="hljs-comment">// Make this flag dependent on all of these flags</span>
+      {<span class="hljs-attr">type</span>: <span class="hljs-string">'all'</span>, <span class="hljs-attr">flags</span>: [
+        <span class="hljs-string">'flag-one'</span>,
+        <span class="hljs-string">'flag-two'</span>,
+        <span class="hljs-comment">// Include flag-seven but only when flag-eight is equal to FooBar</span>
+        {<span class="hljs-attr">name</span>: <span class="hljs-string">'flag-seven'</span>, <span class="hljs-attr">when</span>: <span class="hljs-keyword">async</span> (flags) =&gt; flags[<span class="hljs-string">'flag-eight'</span>] === <span class="hljs-string">'FooBar'</span>}
+      ]}
+    ]
   }),
 
   <span class="hljs-comment">// flag with no value (-f, --force)</span>
   <span class="hljs-attr">force</span>: Flags.boolean({
-    <span class="hljs-attr">char</span>: <span class="hljs-string">'f'</span>,
+    <span class="hljs-attr">char</span>: <span class="hljs-string">'f'</span>,                    <span class="hljs-comment">// short character for flag</span>
     <span class="hljs-attr">default</span>: <span class="hljs-literal">true</span>,                <span class="hljs-comment">// default value if flag not passed (can be a function that returns a boolean)</span>
+    <span class="hljs-attr">env</span>: <span class="hljs-string">'MY_NAME'</span>,               <span class="hljs-comment">// default value to the value of an environment variable</span>
     <span class="hljs-comment">// boolean flags may be reversed with `--no-` (in this case: `--no-force`).</span>
     <span class="hljs-comment">// The flag will be set to false if reversed. This functionality</span>
     <span class="hljs-comment">// is disabled by default, to enable it:</span>
@@ -107,10 +127,18 @@
 <p>For larger CLIs, it can be useful to declare a custom flag that can be shared amongst multiple commands. Here is an example of a custom flag:</p>
 <pre><code class="hljs css language-js"><span class="hljs-comment">// src/flags.ts</span>
 <span class="hljs-keyword">import</span> {Flags} <span class="hljs-keyword">from</span> <span class="hljs-string">'@oclif/core'</span>
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getTeam</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">string</span>&gt; </span>{
-  <span class="hljs-comment">// imagine this reads a configuration file or something to find the team</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Team</span> </span>{
+  public name: string;
+  <span class="hljs-comment">// etc...</span>
 }
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> team = Flags.build({
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getTeam</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">Team</span>&gt; </span>{
+  <span class="hljs-comment">// imagine this reads a configuration file or something to find the team</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Team()
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> team = Flags.custom&lt;Team&gt;({
   <span class="hljs-attr">char</span>: <span class="hljs-string">'t'</span>,
   <span class="hljs-attr">description</span>: <span class="hljs-string">'team to use'</span>,
   <span class="hljs-attr">default</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> getTeam(),
@@ -127,11 +155,16 @@
 
   <span class="hljs-keyword">async</span> run() {
     <span class="hljs-keyword">const</span> {flags} = <span class="hljs-keyword">await</span> <span class="hljs-keyword">this</span>.parse(MyCLI)
-    <span class="hljs-keyword">if</span> (flags.team) <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`--team is <span class="hljs-subst">${flags.team}</span>`</span>)
+    <span class="hljs-keyword">if</span> (flags.team) <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`--team is <span class="hljs-subst">${flags.team.name}</span>`</span>)
   }
 }
 </code></pre>
-<p>In the Heroku CLI, we use flags for our <code>--app</code> flag which takes advantage of a lot of functionality. It can be useful <a href="https://github.com/heroku/cli-engine-heroku/blob/oclif/src/flags/app.ts">to see how that is done</a> to get ideas for making custom flags.</p>
+<p>In the Salesforce CLI we make heavy use of custom flags. For example,</p>
+<ul>
+<li>A <a href="https://salesforcecli.github.io/sf-plugins-core/globals.html#salesforceidflag"><code>salesforceId</code></a> flag that ensures the provided string is a valid Salesforce Id.</li>
+<li>A <a href="https://salesforcecli.github.io/sf-plugins-core/globals.html#durationflag"><code>duration</code></a> flag that converts a provided integer into a <code>Duration</code> instance that we use for working with time based values.</li>
+</ul>
+<p>These and more are located <a href="https://github.com/salesforcecli/sf-plugins-core/tree/main/src/flags">here</a> if you want to see more examples. You can also read the <a href="https://salesforcecli.github.io/sf-plugins-core/globals.html">API docs</a>.</p>
 <h2><a class="anchor" aria-hidden="true" id="alternative-flag-inputs"></a><a href="#alternative-flag-inputs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Alternative Flag Inputs</h2>
 <p>Here are some other ways the user can use input flags. This is assuming the command has flags like <code>-f, --file=file</code> and <code>-v, --verbose</code> (string and boolean flag):</p>
 <pre><code class="hljs css language-sh-session"><span class="hljs-variable">$</span> mycli -<span class="hljs-literal">-verbose</span>
@@ -144,7 +177,7 @@
 <span class="hljs-variable">$</span> mycli <span class="hljs-literal">-vffoo</span>
 </code></pre>
 <p>The last one seems a little odd at first glance, but it's relatively standard in unix and makes commands like <code>tar -xvzfmytarball.tar.gz</code> possible.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 7/11/2022</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/args"><span class="arrow-prev">← </span><span>Command Arguments</span></a><a class="docs-next button" href="/docs/config"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="footer pb3"><div class="mw6 center tc dark-gray f6 bt b--lighter-gray pt3">Made with 💜 by <a class="blue" href="https://developer.salesforce.com/home">Salesforce</a> — <a class="blue" href="https://github.com/oclif/oclif/blob/main/LICENSE">MIT License</a></div></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 9/13/2022</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/args"><span class="arrow-prev">← </span><span>Command Arguments</span></a><a class="docs-next button" href="/docs/config"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="footer pb3"><div class="mw6 center tc dark-gray f6 bt b--lighter-gray pt3">Made with 💜 by <a class="blue" href="https://developer.salesforce.com/home">Salesforce</a> — <a class="blue" href="https://github.com/oclif/oclif/blob/main/LICENSE">MIT License</a></div></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

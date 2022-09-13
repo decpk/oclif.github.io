@@ -85,12 +85,13 @@ MyCommand.description = <span class="hljs-string">'description of this example c
 <p>In other words, <strong>if you execute a promise in <code>Command.run</code> without a awaiting it, then the command will likely timeout before it's completed.</strong></p>
 <h3><a class="anchor" aria-hidden="true" id="other-command-options"></a><a href="#other-command-options" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Other Command Options</h3>
 <p><a href="https://github.com/oclif/core/blob/main/src/command.ts">See the base class to get an idea of what methods can be called on a command</a>.</p>
-<pre><code class="hljs css language-js"><span class="hljs-keyword">import</span> {Command, Flags} <span class="hljs-keyword">from</span> <span class="hljs-string">'@oclif/core'</span>
+<pre><code class="hljs css language-typescript"><span class="hljs-keyword">import</span> {Command, Flags} <span class="hljs-keyword">from</span> <span class="hljs-string">'@oclif/core'</span>
 
-<span class="hljs-keyword">export</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyCommand</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Command</span> </span>{
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> MyCommand <span class="hljs-keyword">extends</span> Command {
+  <span class="hljs-keyword">static</span> summary = <span class="hljs-string">'A brief overview of your command.'</span>
   <span class="hljs-keyword">static</span> description = <span class="hljs-string">`
-description of my command
-can be multiline
+An in-depth description of the command.
+It can be multiline.
 `</span>
 
   <span class="hljs-comment">// hide the command from help</span>
@@ -101,16 +102,30 @@ can be multiline
   <span class="hljs-keyword">static</span> usage = <span class="hljs-string">'mycommand --myflag'</span>
 
   <span class="hljs-comment">// examples to add to help</span>
-  <span class="hljs-comment">// each can be multiline</span>
+  <span class="hljs-comment">// &lt;%= config.bin %&gt; resolves to the executable name</span>
+  <span class="hljs-comment">// &lt;%= command.id %&gt; resolves to the command name</span>
   <span class="hljs-keyword">static</span> examples = [
-    <span class="hljs-string">'$ mycommand --force'</span>,
-    <span class="hljs-string">'$ mycommand --help'</span>,
+    <span class="hljs-comment">// Examples can be simple strings</span>
+    <span class="hljs-string">'&lt;%= config.bin %&gt; &lt;%= command.id %&gt; --help'</span>,
+    <span class="hljs-comment">// Or objects that provide a description of the example command</span>
+    {
+      description: <span class="hljs-string">'Force the command to execute'</span>,
+      command: <span class="hljs-string">'&lt;%= config.bin %&gt; &lt;%= command.id %&gt; --force'</span>,
+    }
   ]
 
   <span class="hljs-comment">// this makes the parser not fail when it receives invalid arguments</span>
   <span class="hljs-comment">// defaults to true</span>
-  <span class="hljs-comment">// set it to false if you need to accept variable arguments</span>
+  <span class="hljs-comment">// set it to false if you need to accept a variable number of arguments</span>
   <span class="hljs-keyword">static</span> strict = <span class="hljs-literal">false</span>
+
+  <span class="hljs-comment">// define aliases that can execute this command.</span>
+  <span class="hljs-keyword">static</span> aliases = [<span class="hljs-string">'alternate:name:for:this:command'</span>]
+
+  <span class="hljs-comment">// Set to true if you want to add the --json flag to your command.</span>
+  <span class="hljs-comment">// oclif will automatically suppress logs (if you use this.log, this.warn, or this.error) and</span>
+  <span class="hljs-comment">// display the JSON returned by the command's run method.</span>
+  <span class="hljs-keyword">static</span> enableJsonFlag = <span class="hljs-literal">true</span>
 
   <span class="hljs-keyword">async</span> run() {
     <span class="hljs-comment">// show a warning</span>
@@ -128,10 +143,14 @@ can be multiline
 <li><a href="#thiswarnmessage-string--error"><code>this.warn(message: string | Error)</code></a></li>
 <li><a href="#thiserrormessage-string--error-options-code-string-exit-number-ref-string-suggestions-string"><code>this.error(message: string | Error, options?: {code?: string, exit?: number, ref?: string; suggestions?: string[];})</code></a></li>
 <li><a href="#thisexitcode-number--0"><code>this.exit(code: number = 0)</code></a></li>
+<li><a href="#thislogtostderrmessage-string"><code>this.logToStderr(message: string)</code></a></li>
+<li><a href="#thisjsonenabled"><code>this.jsonEnabled()</code></a></li>
+<li><a href="#thistosuccessjsonresult-unknown"><code>this.toSuccessJson(result: unknown)</code></a></li>
+<li><a href="#thistoerrorjsonresult-unknown"><code>this.toErrorJson(result: unknown)</code></a></li>
 </ul>
 <p>The following assumes you are in the <code>run()</code> method of an oclif <a href="/docs/commands">command</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="thislogmessage-string"></a><a href="#thislogmessage-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>this.log(message: string)</code></h3>
-<p>Output message to stdout (non-blocking). <code>console.log()</code> works fine too, but that is a blocking call. This uses <a href="https://nodejs.org/api/util.html#util_util_format_format_args">util.format()</a> which behaves the same as <code>console.log()</code>.</p>
+<p>Output message to stdout (non-blocking). <code>console.log()</code> works fine too, but that is a blocking call and won't be automatically suppressed when the <code>--json</code> flag is present. This uses <a href="https://nodejs.org/api/util.html#util_util_format_format_args">util.format()</a> which behaves the same as <code>console.log()</code>.</p>
 <pre><code class="hljs css language-typescript"><span class="hljs-keyword">this</span>.log(<span class="hljs-string">'hello, world!'</span>)
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="thiswarnmessage-string--error"></a><a href="#thiswarnmessage-string--error" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>this.warn(message: string | Error)</code></h3>
@@ -164,7 +183,15 @@ can be multiline
 <pre><code class="hljs css language-typescript"><span class="hljs-keyword">this</span>.exit()
 <span class="hljs-keyword">this</span>.exit(<span class="hljs-number">1</span>)
 </code></pre>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 8/9/2022</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/command_execution"><span class="arrow-prev">← </span><span>Command Execution</span></a><a class="docs-next button" href="/docs/args"><span>Command Arguments</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="footer pb3"><div class="mw6 center tc dark-gray f6 bt b--lighter-gray pt3">Made with 💜 by <a class="blue" href="https://developer.salesforce.com/home">Salesforce</a> — <a class="blue" href="https://github.com/oclif/oclif/blob/main/LICENSE">MIT License</a></div></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<h3><a class="anchor" aria-hidden="true" id="thislogtostderrmessage-string"></a><a href="#thislogtostderrmessage-string" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>this.logToStderr(message: string)</code></h3>
+<p>Log a message to the terminal's <code>stderr</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="thisjsonenabled"></a><a href="#thisjsonenabled" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>this.jsonEnabled()</code></h3>
+<p>Returns to <code>true</code> if the <code>--json</code> flag is present and <code>enableJsonFlag</code> is set to <code>true</code></p>
+<h3><a class="anchor" aria-hidden="true" id="thistosuccessjsonresult-unknown"></a><a href="#thistosuccessjsonresult-unknown" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>this.toSuccessJson(result: unknown)</code></h3>
+<p>Modify the command's success JSON output before it's displayed to the user.</p>
+<h3><a class="anchor" aria-hidden="true" id="thistoerrorjsonresult-unknown"></a><a href="#thistoerrorjsonresult-unknown" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>this.toErrorJson(result: unknown)</code></h3>
+<p>Modify the command's error JSON output before it's displayed to the user.</p>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 9/13/2022</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/command_execution"><span class="arrow-prev">← </span><span>Command Execution</span></a><a class="docs-next button" href="/docs/args"><span>Command Arguments</span><span class="arrow-next"> →</span></a></div></div></div></div><footer class="footer pb3"><div class="mw6 center tc dark-gray f6 bt b--lighter-gray pt3">Made with 💜 by <a class="blue" href="https://developer.salesforce.com/home">Salesforce</a> — <a class="blue" href="https://github.com/oclif/oclif/blob/main/LICENSE">MIT License</a></div></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
